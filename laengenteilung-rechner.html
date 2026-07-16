@@ -1368,5 +1368,20 @@
   setMode('A');
 })();
 </script>
+<script>
+  // Auto-Höhe: meldet die tatsächliche Inhaltshöhe an die einbettende Seite (iframe)
+  (function(){
+    function sendHeight(){
+      var h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+      parent.postMessage({ ltRechnerHeight: h }, '*');
+    }
+    window.addEventListener('load', sendHeight);
+    window.addEventListener('resize', sendHeight);
+    if (window.ResizeObserver){ new ResizeObserver(sendHeight).observe(document.body); }
+    // Fallback: nach kurzer Verzögerung nochmal senden (z. B. wenn Schriften nachladen)
+    setTimeout(sendHeight, 400);
+    setTimeout(sendHeight, 1200);
+  })();
+</script>
 </body>
 </html>
