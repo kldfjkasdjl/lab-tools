@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Längenteilung – Schreiner Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  :root{
+    --bg: #FAF6EF;
+    --surface: #FFFFFF;
+    --ink: #221E19;
+    --muted: #6E6659;
+    --line: #E1D7C6;
+    --accent: #F25C05;
+    --accent-soft: #FCE6D4;
+    --accent-dark: #C74B04;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Montserrat', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px 60px;
+    box-sizing: border-box;
+  }
+  .sheet {
+    width: 100%;
+    max-width: 480px;
+    min-width: 0;
+  }
+  /* Header */
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 16px;
+    height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin: 10px 0 6px;
+    color: var(--ink);
+  }
+  .sub {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0 0 22px;
+    max-width: 42ch;
+  }
+  /* Mode tabs */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    padding: 12px 8px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .tab.active {
+    background: var(--ink);
+    color: #FFF7EE;
+  }
+  .tab { -webkit-tap-highlight-color: transparent; }
+  .unit-btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .unit-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  /* Number stepper: ONE design everywhere — a single bordered unit − | field | + */
+  .stepper {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    height: 52px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    background: #FFFDF9;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+  .stepper:focus-within { border-color: var(--accent); }
+  .stepper input[type="number"] {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    padding: 0 6px;
+    outline: none;
+  }
+  .step-btn {
+    flex: 0 0 48px;
+    border: none;
+    background: #F7F1E7;
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .step-btn:active { background: var(--accent); color: #fff; }
+  .step-btn.minus { border-right: 1px solid var(--line); }
+  .step-btn.plus { border-left: 1px solid var(--line); }
+  /* Formula / calc display */
+  .formula-line {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: #FBF7F0;
+    border-left: 3px solid var(--accent);
+    padding: 9px 12px;
+    margin: 8px 0;
+    border-radius: 0 6px 6px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .formula-line .var { color: var(--accent-dark); font-weight: 700; }
+  .formula-label {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 14px 0 2px;
+  }
+  .formula-label:first-child { margin-top: 0; }
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .card h2 {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+  .field {
+    margin-bottom: 14px;
+  }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+  .hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* a/b pairs: side by side; steppers same style, compact buttons */
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .row2 > .field { min-width: 0; }
+  .row2 .step-btn { flex-basis: 36px; font-size: 20px; }
+  .fix-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 8px 0 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fix-toggle input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--accent);
+    margin: 0;
+  }
+  /* Interruption list (mode C) */
+  .b-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .b-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .b-row .b-label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    width: 24px;
+    flex-shrink: 0;
+  }
+  .b-row .stepper { flex: 1; width: auto; min-width: 0; }
+  .add-btn {
+    margin-top: 6px;
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px dashed var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .add-btn:active { border-color: var(--accent); color: var(--accent-dark); }
+  @media (hover: hover) and (pointer: fine) {
+    .add-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .block-remove:hover, .b-remove:hover { border-color: var(--accent); color: var(--accent-dark); }
+    .tab:not(.active):hover { background: var(--accent-soft); color: var(--accent-dark); }
+  }
+  /* Block list (mode C) */
+  .block-list { display: flex; flex-direction: column; gap: 0; }
+  .block-item {
+    background: #FBF7F0;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .block-item .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .block-item .block-name {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-dark);
+  }
+  .block-item .block-inputs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  /* one label style for embedded fields, same family as main labels */
+  .mini-label {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 5px;
+    display: block;
+  }
+  .block-remove, .b-remove {
+    width: 30px; height: 30px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1.5px solid var(--line);
+    background: #FFFDF9;
+    color: var(--muted);
+    font-size: 15px; line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .block-remove:active, .b-remove:active { border-color: var(--accent); color: var(--accent-dark); }
+  .gap-row {
+    padding: 10px 0 10px 14px;
+    margin: 8px 0 8px 14px;
+    border-left: 2px dashed var(--accent);
+  }
+  /* Result card */
+  .result {
+    background: var(--ink);
+    border-radius: 14px;
+    padding: 22px 20px;
+    color: #FFF7EE;
+    margin-bottom: 18px;
+  }
+  .result.error {
+    background: #3A2418;
+  }
+  .result-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .result-block .k {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #C9BFAF;
+    margin-bottom: 4px;
+  }
+  .result-block .v {
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .result-block .v span.unit {
+    font-size: 15px;
+    color: #FFF7EE;
+    font-weight: 500;
+    margin-left: 3px;
+  }
+  .result-block.secondary .v {
+    color: #FFF7EE;
+    font-size: 22px;
+  }
+  .error-msg {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: #F2C6AE;
+    line-height: 1.5;
+  }
+  /* Diagram */
+  .diagram-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 16px 14px;
+  }
+  .diagram-card h2 {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  svg { display: block; width: 100%; height: auto; }
+  .diagram-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .diagram-legend span.dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    margin-right: 5px;
+  }
+  footer {
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-top: 22px;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="eyebrow">Schreiner Lab · Werkstatt-Rechner</div>
+  <h1>Längenteilung</h1>
+  <p class="sub">Elemente gleichmäßig über eine Länge verteilen – für Bohrungen, Griffe, Sprossen oder Latten.</p>
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+    <span style="font-family:var(--sans); font-size:12px; font-weight:600; color:var(--muted);">Einheit</span>
+    <div id="unit-switch" style="display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px;">
+      <button class="unit-btn active" data-unit="mm" type="button">mm</button>
+      <button class="unit-btn" data-unit="cm" type="button">cm</button>
+      <button class="unit-btn" data-unit="m" type="button">m</button>
+    </div>
+    <span style="font-family:var(--sans); font-size:11px; color:var(--muted);">Eingabe &amp; Anzeige</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-mode="A">Gleichmäßig<br>teilen</button>
+    <button class="tab" data-mode="B">Mit festem<br>Randabstand</button>
+    <button class="tab" data-mode="D">Um Hindernisse<br>verteilen</button>
+    <button class="tab" data-mode="C">Bohrreihen<br>im Raster</button>
+  </div>
+  <div class="card" style="padding:16px 20px; margin-bottom:16px;">
+    <label class="fix-toggle" style="font-size:13.5px; color:var(--ink);">
+      <input type="checkbox" id="raster32" />
+      <span>Raster verwenden – e fest auf Rastermaß setzen</span>
+    </label>
+    <div class="field" id="raster-field" style="margin:12px 0 0;">
+      <label for="raster-size">Rastermaß (<span class="unit-lbl">mm</span>)</label>
+      <input type="number" id="raster-size" inputmode="decimal" value="32" min="1" step="1" />
+    </div>
+  </div>
+  <div class="card">
+    <h2 id="mode-title">Eingaben</h2>
+    <div class="field">
+      <label for="l">Gesamtlänge l (<span class="unit-lbl">mm</span>)</label>
+      <input type="number" id="l" inputmode="decimal" value="600" min="0" step="1" />
+    </div>
+    <!-- Mode A -->
+    <div id="fields-A">
+      <div class="field">
+        <label for="n_a">Anzahl der Elemente (n)</label>
+        <input type="number" id="n_a" inputmode="numeric" value="4" min="1" step="1" />
+        <div class="hint">z. B. 4 Bohrungen – links und rechts bleibt jeweils ein Abstand e Luft.</div>
+      </div>
+    </div>
+    <!-- Mode B -->
+    <div id="fields-B" style="display:none">
+      <div class="row2">
+        <div class="field">
+          <label for="a_b">Randabstand links a (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="a_b" inputmode="decimal" value="20" min="0" step="1" />
+          <label id="fix-a-wrap" class="fix-toggle" style="display:none;">
+            <input type="checkbox" id="fix-a" />
+            <span>a fix</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="b_b">Randabstand rechts b (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="b_b" inputmode="decimal" value="20" min="0" step="1" />
+          <label id="fix-b-wrap" class="fix-toggle" style="display:none;">
+            <input type="checkbox" id="fix-b" />
+            <span>b fix</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label for="n_b">Anzahl der Elemente (n)</label>
+        <input type="number" id="n_b" inputmode="numeric" value="5" min="2" step="1" />
+        <div class="hint">Erstes und letztes Element sitzen genau auf a bzw. b. Bei aktivem Raster: nicht fixierte Randabstände passen sich an, damit e exakt auf dem Raster liegt.</div>
+      </div>
+    </div>
+    <!-- Mode C -->
+    <div id="fields-C" style="display:none">
+      <div class="row2">
+        <div class="field">
+          <label for="a_c">Randabstand links a (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="a_c" inputmode="decimal" min="0" step="1" value="0" />
+          <label id="fix-ac-wrap" class="fix-toggle">
+            <input type="checkbox" id="fix-ac" />
+            <span>a fix</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="b_c">Randabstand rechts b (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="b_c" inputmode="decimal" min="0" step="1" value="0" />
+          <label id="fix-bc-wrap" class="fix-toggle">
+            <input type="checkbox" id="fix-bc" />
+            <span>b fix</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Lochreihen &amp; Lücken</label>
+        <div class="block-list" id="block-list"></div>
+        <button class="add-btn" id="add-block" type="button">+ Lochreihe hinzufügen</button>
+        <div class="hint">Jede Lochreihe: Anzahl Löcher + eigenes Raster. Zwischen zwei Reihen liegt eine Lücke. Ohne fix-Häkchen verteilt sich der Rand gleichmäßig links/rechts. Setzt du a oder b fix, bleibt dieser Wert fest und die andere Seite ergibt sich aus dem Rest.</div>
+      </div>
+    </div>
+    <!-- Mode D: interruptions (obstacles of different widths) -->
+    <div id="fields-D" style="display:none">
+      <div class="row2">
+        <div class="field">
+          <label for="a_d">Randabstand links a (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="a_d" inputmode="decimal" min="0" step="1" value="0" />
+          <label class="fix-toggle">
+            <input type="checkbox" id="fix-ad" />
+            <span>a fix</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="b_d">Randabstand rechts b (<span class="unit-lbl">mm</span>)</label>
+          <input type="number" id="b_d" inputmode="decimal" min="0" step="1" value="0" />
+          <label class="fix-toggle">
+            <input type="checkbox" id="fix-bd" />
+            <span>b fix</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Hindernisse / Unterbrechungen (mm)</label>
+        <div class="b-list" id="b-list"></div>
+        <button class="add-btn" id="add-b" type="button">+ Hindernis hinzufügen</button>
+        <div class="hint">Feste Breiten, um die herum gleichmäßig verteilt wird. Ohne fix-Häkchen sind die Randabstände = e (gleichmäßig auch an den Enden). Mit fix bleibt der Wert fest und der Rest verteilt sich neu.</div>
+      </div>
+    </div>
+  </div>
+  <div class="result" id="result">
+    <div class="result-top">
+      <div class="result-block">
+        <div class="k">Abstand e</div>
+        <div class="v" id="e-value">–</div>
+      </div>
+      <div class="result-block secondary">
+        <div class="k">Abstände z</div>
+        <div class="v" id="z-value">–</div>
+      </div>
+    </div>
+    <div class="error-msg" id="error-msg" style="display:none"></div>
+    <div id="leftover-row" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,247,238,0.15);">
+      <div class="k" style="font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#C9BFAF; margin-bottom:4px;">Hinweis zum Raster</div>
+      <div style="font-family:var(--mono); font-size:16px; color:#FFF7EE;" id="leftover-value">–</div>
+    </div>
+  </div>
+  <div class="diagram-card">
+    <h2>Skizze</h2>
+    <div id="svg-holder"></div>
+    <div class="diagram-legend" id="legend"></div>
+  </div>
+  <div class="diagram-card" id="table-card" style="margin-top:14px;">
+    <h2>Absolutmaße (jeder Punkt einzeln ab Kante)</h2>
+    <div class="hint" style="margin-bottom:12px;">Jeden Punkt einzeln ab der Kante anreißen – so summieren sich keine Ablesefehler auf.</div>
+    <table id="pos-table" style="width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13.5px;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1.5px solid var(--line);">
+          <th style="padding:6px 4px; font-family:var(--sans); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">Punkt</th>
+          <th style="padding:6px 4px; font-family:var(--sans); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">ab links</th>
+          <th style="padding:6px 4px; font-family:var(--sans); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">ab rechts</th>
+        </tr>
+      </thead>
+      <tbody id="pos-tbody"></tbody>
+    </table>
+  </div>
+  <div class="diagram-card" id="formula-card" style="margin-top:14px;">
+    <h2>Formel &amp; Rechenweg</h2>
+    <div id="formula-body" style="font-family:var(--serif); font-size:15px; color:var(--ink); line-height:1.65;"></div>
+  </div>
+  <footer>SCHREINER LAB · Werkstatt-Rechner</footer>
+</div>
+<script>
+(function(){
+  const state = {
+    mode: 'A',
+    unit: 'mm',
+    blocks: [ {count: 10, raster: 32}, {count: 12, raster: 32} ],
+    gaps: [ 150 ],
+    bList: [ 40, 30, 40 ]
+  };
+  const els = {
+    l: document.getElementById('l'),
+    n_a: document.getElementById('n_a'),
+    a_b: document.getElementById('a_b'),
+    b_b: document.getElementById('b_b'),
+    n_b: document.getElementById('n_b'),
+    blockListEl: document.getElementById('block-list'),
+    addBlock: document.getElementById('add-block'),
+    bListEl: document.getElementById('b-list'),
+    addB: document.getElementById('add-b'),
+    eValue: document.getElementById('e-value'),
+    zValue: document.getElementById('z-value'),
+    result: document.getElementById('result'),
+    errorMsg: document.getElementById('error-msg'),
+    svgHolder: document.getElementById('svg-holder'),
+    legend: document.getElementById('legend'),
+    modeTitle: document.getElementById('mode-title'),
+    posTbody: document.getElementById('pos-tbody'),
+    tableCard: document.getElementById('table-card'),
+    raster32: document.getElementById('raster32'),
+    rasterSize: document.getElementById('raster-size'),
+    fixA: document.getElementById('fix-a'),
+    fixB: document.getElementById('fix-b'),
+    fixAWrap: document.getElementById('fix-a-wrap'),
+    fixBWrap: document.getElementById('fix-b-wrap'),
+    a_c: document.getElementById('a_c'),
+    b_c: document.getElementById('b_c'),
+    fixAc: document.getElementById('fix-ac'),
+    fixBc: document.getElementById('fix-bc'),
+    a_d: document.getElementById('a_d'),
+    b_d: document.getElementById('b_d'),
+    fixAd: document.getElementById('fix-ad'),
+    fixBd: document.getElementById('fix-bd'),
+    leftoverRow: document.getElementById('leftover-row'),
+    leftoverValue: document.getElementById('leftover-value'),
+  };
+  function roundToGrid(x, r){
+    return Math.max(r, Math.round(x/r)*r);
+  }
+  // Write a computed value into an input unless the user is typing in it right now.
+  function safeSet(inp, mmVal){
+    if (document.activeElement !== inp) inp.value = numLen(mmVal);
+  }
+  const fmt = (n) => {
+    if (!isFinite(n)) return '–';
+    return (Math.round(n * 10) / 10).toLocaleString('de-DE');
+  };
+  // --- Units: internally everything is mm; display/input in chosen unit ---
+  const UNITS = { mm: 1, cm: 10, m: 1000 };
+  const UNIT_DEC = { mm: 1, cm: 2, m: 4 }; // display decimals per unit (≈0.1mm precision)
+  function U(){ return UNITS[state.unit] || 1; }
+  function toMM(v){ return (v || 0) * U(); }
+  function fromMM(mm){ return mm / U(); }
+  function numLen(mm){ // number only (for input fields), 5 decimals to avoid unit-switch drift
+    return Math.round((mm / U()) * 100000) / 100000;
+  }
+  function fmtLen(mm){ // number + unit suffix (for display)
+    if (!isFinite(mm)) return '–';
+    const dec = UNIT_DEC[state.unit] ?? 1;
+    const v = mm / U();
+    return v.toLocaleString('de-DE', { maximumFractionDigits: dec }) + ' ' + state.unit;
+  }
+  function setMode(mode){
+    state.mode = mode;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+    document.getElementById('fields-A').style.display = mode === 'A' ? '' : 'none';
+    document.getElementById('fields-B').style.display = mode === 'B' ? '' : 'none';
+    document.getElementById('fields-C').style.display = mode === 'C' ? '' : 'none';
+    document.getElementById('fields-D').style.display = mode === 'D' ? '' : 'none';
+    els.modeTitle.textContent = {
+      A: 'Eingaben — gleich verteilt',
+      B: 'Eingaben — mit Randabstand',
+      C: 'Eingaben — Bohrreihen mit Lücken',
+      D: 'Eingaben — um Hindernisse verteilen'
+    }[mode];
+    // In mode C each row carries its own raster, so the global raster toggle is irrelevant.
+    const rasterCard = els.raster32.closest('.card');
+    if (rasterCard) rasterCard.style.display = mode === 'C' ? 'none' : '';
+    renderBlocks();
+    renderBList();
+    compute();
+  }
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => setMode(t.dataset.mode));
+  });
+  function renderBlocks(){
+    els.blockListEl.innerHTML = '';
+    state.blocks.forEach((blk, i) => {
+      const item = document.createElement('div');
+      item.className = 'block-item';
+      item.innerHTML = `
+        <div class="block-head">
+          <span class="block-name">Reihe ${i+1}</span>
+          <button class="block-remove" type="button" data-rm="${i}" ${state.blocks.length <= 1 ? 'style="visibility:hidden"' : ''}>&times;</button>
+        </div>
+        <div class="block-inputs">
+          <div>
+            <span class="mini-label">Anzahl Löcher</span>
+            <input type="number" inputmode="numeric" min="1" step="1" value="${blk.count}" data-blk-count="${i}" />
+          </div>
+          <div>
+            <span class="mini-label">Raster (<span class="unit-lbl">mm</span>)</span>
+            <input type="number" inputmode="decimal" min="0" step="1" value="${numLen(blk.raster)}" data-blk-raster="${i}" />
+          </div>
+        </div>
+      `;
+      els.blockListEl.appendChild(item);
+      // gap row after each block except the last
+      if (i < state.blocks.length - 1){
+        const gapRow = document.createElement('div');
+        gapRow.className = 'gap-row';
+        gapRow.innerHTML = `
+          <span class="mini-label">Lücke (<span class="unit-lbl">mm</span>)</span>
+          <input type="number" inputmode="decimal" min="0" step="1" value="${numLen(state.gaps[i])}" data-gap="${i}" />
+        `;
+        els.blockListEl.appendChild(gapRow);
+      }
+    });
+    els.blockListEl.querySelectorAll('[data-blk-count]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        state.blocks[+e.target.dataset.blkCount].count = Math.max(1, parseInt(e.target.value) || 1);
+        compute();
+      });
+    });
+    els.blockListEl.querySelectorAll('[data-blk-raster]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        state.blocks[+e.target.dataset.blkRaster].raster = toMM(parseFloat(e.target.value) || 0) || 1;
+        compute();
+      });
+    });
+    els.blockListEl.querySelectorAll('[data-gap]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        state.gaps[+e.target.dataset.gap] = Math.max(0, toMM(parseFloat(e.target.value) || 0));
+        compute();
+      });
+    });
+    // steppers on all block-editor number fields
+    els.blockListEl.querySelectorAll('input[type="number"]').forEach(inp => wrapStepper(inp, 1));
+    els.blockListEl.querySelectorAll('[data-rm]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = +e.target.dataset.rm;
+        if (state.blocks.length > 1){
+          state.blocks.splice(idx, 1);
+          // remove adjacent gap: prefer the gap before this block, else after
+          if (idx > 0) state.gaps.splice(idx-1, 1);
+          else state.gaps.splice(0, 1);
+          renderBlocks();
+          compute();
+        }
+      });
+    });
+  }
+  els.addBlock.addEventListener('click', () => {
+    state.blocks.push({count: 8, raster: 32});
+    state.gaps.push(100);
+    renderBlocks();
+    compute();
+  });
+  function renderBList(){
+    els.bListEl.innerHTML = '';
+    state.bList.forEach((val, i) => {
+      const row = document.createElement('div');
+      row.className = 'b-row';
+      row.innerHTML = `
+        <span class="b-label">b${i+1}</span>
+        <input type="number" inputmode="decimal" min="0" step="1" value="${numLen(val)}" data-idx="${i}" />
+        <button class="b-remove" type="button" data-idx="${i}" ${state.bList.length <= 2 ? 'style="visibility:hidden"' : ''}>&times;</button>
+      `;
+      els.bListEl.appendChild(row);
+    });
+    els.bListEl.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        state.bList[+e.target.dataset.idx] = Math.max(0, toMM(parseFloat(e.target.value) || 0));
+        compute();
+      });
+    });
+    els.bListEl.querySelectorAll('.b-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = +e.target.dataset.idx;
+        if (state.bList.length > 2){
+          state.bList.splice(idx, 1);
+          renderBList();
+          compute();
+        }
+      });
+    });
+    els.bListEl.querySelectorAll('input[type="number"]').forEach(inp => wrapStepper(inp, 1));
+  }
+  els.addB.addEventListener('click', () => {
+    state.bList.push(30);
+    renderBList();
+    compute();
+  });
+  [els.l, els.n_a, els.a_b, els.b_b, els.n_b].forEach(inp => {
+    inp.addEventListener('input', compute);
+  });
+  els.raster32.addEventListener('change', () => { updateRasterUI(); compute(); });
+  els.rasterSize.addEventListener('input', compute);
+  els.fixA.addEventListener('change', compute);
+  els.fixB.addEventListener('change', compute);
+  [els.a_c, els.b_c].forEach(inp => inp.addEventListener('input', compute));
+  els.fixAc.addEventListener('change', compute);
+  els.fixBc.addEventListener('change', compute);
+  [els.a_d, els.b_d].forEach(inp => inp.addEventListener('input', compute));
+  els.fixAd.addEventListener('change', compute);
+  els.fixBd.addEventListener('change', compute);
+  // Unit switch: keep physical sizes constant by rescaling all length inputs.
+  const lengthInputs = [els.l, els.a_b, els.b_b, els.rasterSize, els.a_c, els.b_c, els.a_d, els.b_d];
+  document.querySelectorAll('.unit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newUnit = btn.dataset.unit;
+      if (newUnit === state.unit) return;
+      // convert each static length field from old unit to mm, then to new unit
+      const oldFactor = UNITS[state.unit];
+      const newFactor = UNITS[newUnit];
+      lengthInputs.forEach(inp => {
+        const val = parseFloat(inp.value);
+        if (!isNaN(val)){
+          const mm = val * oldFactor;
+          inp.value = Math.round((mm / newFactor) * 100000) / 100000;
+        }
+      });
+      state.unit = newUnit;
+      document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === newUnit));
+      document.querySelectorAll('.unit-lbl').forEach(el => el.textContent = newUnit);
+      renderBlocks();
+      renderBList();
+      compute();
+    });
+  });
+  function updateRasterUI(){
+    const on = els.raster32.checked;
+    els.fixAWrap.style.display = on ? 'flex' : 'none';
+    els.fixBWrap.style.display = on ? 'flex' : 'none';
+    const rf = document.getElementById('raster-field');
+    if (rf) rf.style.display = on ? '' : 'none';
+  }
+  // Wrap a number input with large − / + buttons on each side (mobile-friendly).
+  function wrapStepper(input, step){
+    step = step || 1;
+    if (!input || input.parentElement.classList.contains('stepper')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'stepper';
+    const minus = document.createElement('button');
+    minus.type = 'button'; minus.className = 'step-btn minus'; minus.textContent = '−';
+    minus.setAttribute('tabindex', '-1'); minus.setAttribute('aria-label', 'verringern');
+    const plus = document.createElement('button');
+    plus.type = 'button'; plus.className = 'step-btn plus'; plus.textContent = '+';
+    plus.setAttribute('tabindex', '-1'); plus.setAttribute('aria-label', 'erhöhen');
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(minus);
+    wrap.appendChild(input);
+    wrap.appendChild(plus);
+    const bump = (d) => {
+      const cur = parseFloat(input.value) || 0;
+      const min = input.min !== '' ? parseFloat(input.min) : -Infinity;
+      let nv = cur + d*step;
+      if (nv < min) nv = min;
+      input.value = Math.round(nv * 100000) / 100000;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    minus.addEventListener('click', () => bump(-1));
+    plus.addEventListener('click', () => bump(1));
+  }
+  // apply steppers to the primary full-width fields
+  [els.l, els.n_a, els.a_b, els.b_b, els.n_b, els.a_c, els.b_c, els.a_d, els.b_d, els.rasterSize].forEach(inp => wrapStepper(inp, 1));
+  function compute(){
+    const l = toMM(parseFloat(els.l.value) || 0);
+    let e = NaN, z = NaN, err = null;
+    let diagramData = null;
+    const useRaster = els.raster32.checked;
+    let leftover = null;
+    let noteMsg = null;
+    if (l <= 0){
+      err = 'Gesamtlänge muss größer als 0 sein.';
+    } else if (state.mode === 'A'){
+      const n = parseInt(els.n_a.value) || 0;
+      const r = toMM(parseFloat(els.rasterSize.value) || 32);
+      if (n < 1) err = 'Mindestens 1 Element angeben.';
+      else {
+        z = n + 1;
+        e = l / z;
+        let nFinal = n;
+        if (useRaster){
+          e = r;
+          nFinal = Math.floor(l / e) - 1;
+          if (nFinal < 1){ err = `Bei Raster ${fmtLen(r)} passt kein Element rein – Länge zu kurz.`; }
+          else {
+            z = nFinal + 1; leftover = l - z*e;
+            if (nFinal !== n) noteMsg = `Angefragt: ${n} Elemente – bei ${fmtLen(r)}-Raster passen ${nFinal} rein.`;
+          }
+        }
+        if (!err){
+          const marks = [];
+          for (let i=1;i<=nFinal;i++){ marks.push(i * e); }
+          diagramData = { type: 'A', l, n: nFinal, e, marks };
+        }
+      }
+    } else if (state.mode === 'B'){
+      const a = toMM(parseFloat(els.a_b.value) || 0);
+      const b = toMM(parseFloat(els.b_b.value) || 0);
+      const n = parseInt(els.n_b.value) || 0;
+      const r = toMM(parseFloat(els.rasterSize.value) || 32);
+      const aFixed = els.fixA.checked;
+      const bFixed = els.fixB.checked;
+      if (n < 2) err = 'Mindestens 2 Elemente angeben.';
+      else if (l - (a+b) <= 0) err = 'Randabstände sind größer als die Gesamtlänge.';
+      else {
+        z = n - 1;
+        e = (l - (a+b)) / z;
+        let aFinal = a, bFinal = b;
+        if (useRaster){
+          e = r;
+          const totalGaps = z * e;
+          const marginsAvail = l - totalGaps;
+          if (marginsAvail < -0.001){
+            err = `Bei diesem Raster (${fmtLen(r)}) und ${n} Elementen ist die Länge zu kurz.`;
+          } else if (aFixed && bFixed){
+            if (Math.abs((a+b) - marginsAvail) > 0.5){
+              err = `Mit beiden fixierten Randabständen (a+b=${fmtLen(a+b)}) geht sich das Raster nicht aus – es müssten zusammen ${fmtLen(marginsAvail)} sein. Einen Abstand freigeben.`;
+            } else { aFinal = a; bFinal = b; }
+          } else if (aFixed){
+            bFinal = marginsAvail - a;
+            if (bFinal < -0.001){ err = `Randabstand b würde negativ (${fmtLen(bFinal)}) – Raster, Anzahl oder a anpassen.`; }
+          } else if (bFixed){
+            aFinal = marginsAvail - b;
+            if (aFinal < -0.001){ err = `Randabstand a würde negativ (${fmtLen(aFinal)}) – Raster, Anzahl oder b anpassen.`; }
+          } else {
+            aFinal = marginsAvail / 2;
+            bFinal = marginsAvail / 2;
+          }
+          if (!err){
+            leftover = null; // margins absorb everything exactly, nothing left over
+            if (!aFixed) safeSet(els.a_b, aFinal);
+            if (!bFixed) safeSet(els.b_b, bFinal);
+            if (Math.abs(aFinal-a) > 0.5 || Math.abs(bFinal-b) > 0.5){
+              noteMsg = `Randabstände angepasst: a=${fmtLen(aFinal)}, b=${fmtLen(bFinal)}, damit e exakt auf dem ${fmtLen(r)}-Raster liegt.`;
+            }
+          }
+        }
+        if (!err){
+          const marks = [];
+          for (let i=0;i<n;i++){ marks.push(aFinal + i*e); }
+          diagramData = { type: 'B', l, a: aFinal, b: bFinal, n, e, marks };
+        }
+      }
+    } else if (state.mode === 'C'){
+      // Block model: each block = count holes at own raster; gaps between blocks.
+      // Content span (first hole to last hole) = sum of block internal spans + sum of gaps.
+      // Margins a=b auto-centered to fill the rest.
+      const blocks = state.blocks;
+      let valid = true;
+      blocks.forEach(b => { if (b.count < 1 || b.raster <= 0) valid = false; });
+      if (!valid){
+        err = 'Jede Lochreihe braucht mindestens 1 Loch und ein Raster > 0.';
+      } else if (state.gaps.some(g => g < 0)){
+        err = 'Lücken dürfen nicht negativ sein.';
+      } else {
+        let contentSpan = 0;
+        blocks.forEach(b => { contentSpan += (b.count - 1) * b.raster; });
+        state.gaps.forEach(g => { contentSpan += g; });
+        const margins = l - contentSpan;
+        if (margins < -0.001){
+          err = `Länge zu kurz: Lochreihen + Lücken brauchen ${fmtLen(contentSpan)}, verfügbar sind ${fmtLen(l)}.`;
+        } else {
+          // distribute margins to a (left) / b (right) with optional fix
+          const acFixed = els.fixAc.checked;
+          const bcFixed = els.fixBc.checked;
+          const acIn = toMM(parseFloat(els.a_c.value) || 0);
+          const bcIn = toMM(parseFloat(els.b_c.value) || 0);
+          let aC, bC;
+          if (acFixed && bcFixed){
+            if (Math.abs((acIn + bcIn) - margins) > 0.5){
+              err = `Mit beiden fixierten Randabständen (a+b=${fmtLen(acIn+bcIn)}) bleibt der Rest nicht auf – verfügbar sind ${fmtLen(margins)}. Einen Abstand freigeben.`;
+            } else { aC = acIn; bC = bcIn; }
+          } else if (acFixed){
+            aC = acIn; bC = margins - acIn;
+            if (bC < -0.001){ err = `Randabstand b würde negativ (${fmtLen(bC)}) – a, Länge oder Reihen anpassen.`; }
+          } else if (bcFixed){
+            bC = bcIn; aC = margins - bcIn;
+            if (aC < -0.001){ err = `Randabstand a würde negativ (${fmtLen(aC)}) – b, Länge oder Reihen anpassen.`; }
+          } else {
+            aC = margins / 2; bC = margins / 2;
+          }
+          if (err){ /* fall through to error display */ }
+          else {
+          const marginEach = aC; // left margin (may differ from right now)
+          // reflect computed values back into non-fixed fields
+          if (!acFixed) safeSet(els.a_c, aC);
+          if (!bcFixed) safeSet(els.b_c, bC);
+          // build marks across all blocks
+          const marks = [];
+          const blockRanges = [];
+          let cursor = aC;
+          blocks.forEach((b, bi) => {
+            const startX = cursor;
+            for (let i=0;i<b.count;i++){
+              marks.push(cursor);
+              if (i < b.count - 1) cursor += b.raster;
+            }
+            blockRanges.push({ start: startX, end: cursor, count: b.count, raster: b.raster });
+            if (bi < blocks.length - 1) cursor += state.gaps[bi]; // move over the gap to next block start
+          });
+          const totalHoles = blocks.reduce((s,b)=>s+b.count,0);
+          diagramData = { type: 'C', l, blockRanges, gaps: state.gaps.slice(), marginEach: aC, marginRight: bC, marks };
+          // Fill summary values (reuse e/z result slots for something meaningful)
+          e = null; z = totalHoles;
+          const marginTxt = (Math.abs(aC-bC) < 0.5)
+            ? `Randabstand links/rechts je ${fmtLen(aC)}`
+            : `Randabstand links ${fmtLen(aC)}, rechts ${fmtLen(bC)}`;
+          noteMsg = `${marginTxt}. Gesamt ${totalHoles} Löcher in ${blocks.length} Reihen.`;
+          }
+        }
+      }
+    } else if (state.mode === 'D'){
+      // Equal gaps e around fixed obstacles. Margins a/b optionally fixed:
+      // no fix:   a = b = e,  e = (l - ΣB) / (n + 1)
+      // a fix:    b = e,      e = (l - ΣB - a) / n
+      // b fix:    a = e,      e = (l - ΣB - b) / n
+      // both fix:             e = (l - ΣB - a - b) / (n - 1)
+      const sumB = state.bList.reduce((s,v) => s+v, 0);
+      const nB = state.bList.length;
+      const adFixed = els.fixAd.checked;
+      const bdFixed = els.fixBd.checked;
+      const adIn = Math.max(0, toMM(parseFloat(els.a_d.value) || 0));
+      const bdIn = Math.max(0, toMM(parseFloat(els.b_d.value) || 0));
+      if (nB < 2) err = 'Mindestens 2 Hindernisse angeben.';
+      else if (state.bList.some(b => b < 0)) err = 'Hindernisbreiten dürfen nicht negativ sein.';
+      else if (l - sumB <= 0) err = 'Hindernisse sind zusammen breiter als die Gesamtlänge.';
+      else {
+        let aD, bD;
+        if (adFixed && bdFixed){
+          z = nB - 1;
+          e = (l - sumB - adIn - bdIn) / z;
+          aD = adIn; bD = bdIn;
+          if (e < -0.001) err = `Mit a=${fmtLen(adIn)} und b=${fmtLen(bdIn)} fix bleibt für die Zwischenräume nichts übrig – einen Rand freigeben oder Werte anpassen.`;
+        } else if (adFixed){
+          z = nB;
+          e = (l - sumB - adIn) / z;
+          aD = adIn; bD = e;
+          if (e < -0.001) err = `Randabstand a=${fmtLen(adIn)} ist zu groß für die verbleibende Länge.`;
+        } else if (bdFixed){
+          z = nB;
+          e = (l - sumB - bdIn) / z;
+          aD = e; bD = bdIn;
+          if (e < -0.001) err = `Randabstand b=${fmtLen(bdIn)} ist zu groß für die verbleibende Länge.`;
+        } else {
+          z = nB + 1;
+          e = (l - sumB) / z;
+          aD = e; bD = e;
+        }
+        if (!err){
+          if (!adFixed) safeSet(els.a_d, aD);
+          if (!bdFixed) safeSet(els.b_d, bD);
+          const marks = [];
+          let cursor = aD;
+          state.bList.forEach((bw, i) => {
+            marks.push(cursor);           // obstacle start
+            marks.push(cursor + bw);      // obstacle end
+            cursor += bw + (i < nB - 1 ? e : 0);
+          });
+          diagramData = { type: 'D', l, bList: state.bList.slice(), e, a: aD, b: bD, marks };
+        }
+      }
+    }
+    if (err){
+      els.result.classList.add('error');
+      els.errorMsg.style.display = 'block';
+      els.errorMsg.textContent = err;
+      els.eValue.innerHTML = '–';
+      els.zValue.innerHTML = '–';
+      els.svgHolder.innerHTML = '';
+      els.legend.innerHTML = '';
+      els.posTbody.innerHTML = '';
+      els.leftoverRow.style.display = 'none';
+      const fb = document.getElementById('formula-body');
+      if (fb) fb.innerHTML = '<span style="color:var(--muted); font-family:var(--sans); font-size:13px;">Bitte eine gültige Eingabe machen, dann erscheint hier der Rechenweg.</span>';
+      return;
+    }
+    els.result.classList.remove('error');
+    els.errorMsg.style.display = 'none';
+    els.errorMsg.textContent = '';
+    if (e === null){
+      // mode C: no single e; show hole count and block/gap summary instead
+      els.eValue.innerHTML = z + '<span class="unit">Löcher</span>';
+      els.zValue.innerHTML = state.blocks.length;
+      document.querySelector('#result .result-block .k').textContent = 'Löcher gesamt';
+      document.querySelector('#result .result-block.secondary .k').textContent = 'Reihen';
+    } else {
+      els.eValue.innerHTML = fmtLen(e).replace(' ', '<span class="unit">') + '</span>';
+      els.zValue.innerHTML = z;
+      document.querySelector('#result .result-block .k').textContent = 'Abstand e';
+      document.querySelector('#result .result-block.secondary .k').textContent = 'Abstände z';
+    }
+    if ((leftover !== null && leftover > 0.05) || noteMsg){
+      els.leftoverRow.style.display = 'block';
+      const parts = [];
+      if (noteMsg) parts.push(noteMsg);
+      if (leftover !== null && leftover > 0.05) parts.push('Restspiel: ' + fmtLen(leftover));
+      els.leftoverValue.innerHTML = parts.join('<br>');
+    } else {
+      els.leftoverRow.style.display = 'none';
+    }
+    renderDiagram(diagramData);
+    renderTable(diagramData.marks, l);
+    highlightIdx = null;
+    bindHighlights();
+    renderFormula(diagramData, l);
+  }
+  function renderTable(marks, l){
+    els.posTbody.innerHTML = '';
+    marks.forEach((pos, i) => {
+      const tr = document.createElement('tr');
+      tr.dataset.i = i;
+      tr.style.borderBottom = '1px solid var(--line)';
+      tr.style.cursor = 'pointer';
+      tr.innerHTML = `
+        <td style="padding:7px 4px; color:var(--muted);">P${i+1}</td>
+        <td style="padding:7px 4px; font-weight:600;">${fmtLen(pos)}</td>
+        <td style="padding:7px 4px; font-weight:600;">${fmtLen(l - pos)}</td>
+      `;
+      els.posTbody.appendChild(tr);
+    });
+  }
+  function renderFormula(d, l){
+    const fb = document.getElementById('formula-body');
+    if (!fb) return;
+    const F = (mm) => fmtLen(mm);
+    let html = '';
+    if (d.type === 'A'){
+      const z = d.n + 1;
+      html = `
+        <div class="formula-label">Abstand e (gleiche Teilung, Abstand auch an den Enden)</div>
+        <div class="formula-line"><span class="var">e</span> = l / (n + 1)</div>
+        <div class="formula-line"><span class="var">e</span> = ${F(l)} / (${d.n} + 1) = ${F(l)} / ${z} = <span class="var">${F(d.e)}</span></div>
+        <div class="formula-label">Position von Punkt k (ab linker Kante)</div>
+        <div class="formula-line">P<sub>k</sub> = k · e   →   P1 = ${F(d.e)}, P2 = ${F(2*d.e)}, …</div>
+      `;
+    } else if (d.type === 'B'){
+      const z = d.n - 1;
+      html = `
+        <div class="formula-label">Abstand e (erstes/letztes Element sitzen auf a bzw. b)</div>
+        <div class="formula-line"><span class="var">e</span> = (l − a − b) / (n − 1)</div>
+        <div class="formula-line"><span class="var">e</span> = (${F(l)} − ${F(d.a)} − ${F(d.b)}) / (${d.n} − 1) = ${F(l - d.a - d.b)} / ${z} = <span class="var">${F(d.e)}</span></div>
+        <div class="formula-label">Position von Punkt k (ab linker Kante)</div>
+        <div class="formula-line">P<sub>k</sub> = a + (k−1) · e   →   P1 = ${F(d.a)}, P2 = ${F(d.a + d.e)}, …</div>
+      `;
+    } else if (d.type === 'C'){
+      const blocks = state.blocks;
+      let spanParts = blocks.map((b,i)=>`(${b.count}−1)·${F(b.raster)}`).join(' + ');
+      let gapParts = d.gaps.map(g=>F(g)).join(' + ');
+      const mRight = (d.marginRight != null) ? d.marginRight : d.marginEach;
+      const contentSpan = l - d.marginEach - mRight;
+      const bothAuto = Math.abs(d.marginEach - mRight) < 0.5 && !els.fixAc.checked && !els.fixBc.checked;
+      html = `
+        <div class="formula-label">Inhaltsbreite (erstes bis letztes Loch)</div>
+        <div class="formula-line">Inhalt = Σ (Löcher−1)·Raster + Σ Lücken</div>
+        <div class="formula-line">Inhalt = ${spanParts}${d.gaps.length ? ' + ' + gapParts : ''} = <span class="var">${F(contentSpan)}</span></div>
+        <div class="formula-label">Rand gesamt = l − Inhalt = ${F(l)} − ${F(contentSpan)} = ${F(l - contentSpan)}</div>
+        ${bothAuto
+          ? `<div class="formula-line"><span class="var">a</span> = <span class="var">b</span> = Rand / 2 = ${F(l - contentSpan)} / 2 = <span class="var">${F(d.marginEach)}</span></div>`
+          : `<div class="formula-line"><span class="var">a</span> = ${F(d.marginEach)}   ·   <span class="var">b</span> = ${F(mRight)}</div>`}
+      `;
+    } else if (d.type === 'D'){
+      const nB = d.bList.length;
+      const sumB = d.bList.reduce((s,v)=>s+v,0);
+      const bParts = d.bList.map(v=>F(v)).join(' + ');
+      const adF = els.fixAd.checked, bdF = els.fixBd.checked;
+      if (adF && bdF){
+        html = `
+          <div class="formula-label">a und b fix – e nur zwischen den Hindernissen</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse − a − b) / (Anzahl − 1)</div>
+          <div class="formula-line"><span class="var">e</span> = (${F(l)} − ${F(sumB)} − ${F(d.a)} − ${F(d.b)}) / ${nB - 1} = <span class="var">${F(d.e)}</span></div>
+        `;
+      } else if (adF || bdF){
+        const fixName = adF ? 'a' : 'b';
+        const fixVal = adF ? d.a : d.b;
+        html = `
+          <div class="formula-label">${fixName} fix – der andere Rand wird = e</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse − ${fixName}) / Anzahl</div>
+          <div class="formula-line"><span class="var">e</span> = (${F(l)} − ${F(sumB)} − ${F(fixVal)}) / ${nB} = <span class="var">${F(d.e)}</span></div>
+        `;
+      } else {
+        html = `
+          <div class="formula-label">Gleiche Lücken überall (a = b = e)</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse) / (Anzahl + 1)</div>
+          <div class="formula-line"><span class="var">e</span> = (${F(l)} − (${bParts})) / (${nB} + 1) = ${F(l - sumB)} / ${nB + 1} = <span class="var">${F(d.e)}</span></div>
+        `;
+      }
+    }
+    fb.innerHTML = html;
+  }
+  function applyHighlight(){
+    const dots = els.svgHolder.querySelectorAll('.pt');
+    const nums = els.svgHolder.querySelectorAll('.pt-num');
+    const rows = els.posTbody.querySelectorAll('tr');
+    dots.forEach(dot => {
+      const i = +dot.dataset.i;
+      const on = i === highlightIdx;
+      dot.setAttribute('r', on ? 7 : 4.5);
+      dot.setAttribute('fill', on ? '#C74B04' : '#F25C05');
+    });
+    nums.forEach(t => {
+      const i = +t.dataset.i;
+      const on = i === highlightIdx;
+      t.setAttribute('font-weight', on ? '700' : '400');
+      t.setAttribute('fill', on ? '#C74B04' : '#6E6659');
+    });
+    rows.forEach(r => {
+      r.style.background = (+r.dataset.i === highlightIdx) ? 'var(--accent-soft)' : '';
+    });
+  }
+  function bindHighlights(){
+    els.svgHolder.querySelectorAll('.pt, .pt-num').forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        const i = +el.dataset.i;
+        highlightIdx = (highlightIdx === i) ? null : i;
+        applyHighlight();
+      });
+    });
+    els.posTbody.querySelectorAll('tr').forEach(r => {
+      r.addEventListener('click', () => {
+        const i = +r.dataset.i;
+        highlightIdx = (highlightIdx === i) ? null : i;
+        applyHighlight();
+      });
+    });
+  }
+  function renderDiagram(d){
+    const W = 440, H = 188;
+    const padX = 24, barY = 60, barH = 26;
+    const usableW = W - 2*padX;
+    const scale = usableW / d.l;
+    function xAt(mmFromLeft){ return padX + mmFromLeft * scale; }
+    function tick(x, y1, y2, color){
+      return `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${color}" stroke-width="1.4"/>`;
+    }
+    function dimLine(x1, x2, y, color){
+      return `
+        <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="1.2"/>
+        <line x1="${x1-4}" y1="${y-4}" x2="${x1+4}" y2="${y+4}" stroke="${color}" stroke-width="1.2"/>
+        <line x1="${x2-4}" y1="${y-4}" x2="${x2+4}" y2="${y+4}" stroke="${color}" stroke-width="1.2"/>
+      `;
+    }
+    function label(x, y, text, color, size){
+      return `<text x="${x}" y="${y}" font-family="JetBrains Mono, monospace" font-size="${size||11}" fill="${color}" text-anchor="middle">${text}</text>`;
+    }
+    let svg = '';
+    let legendHTML = '';
+    // base bar
+    svg += `<rect x="${padX}" y="${barY}" width="${usableW}" height="${barH}" rx="3" fill="#FCE6D4" stroke="#E1D7C6" stroke-width="1.2"/>`;
+    if (d.type === 'A'){
+      const positions = [];
+      for (let i=1;i<=d.n;i++){ positions.push(i * d.e); }
+      // dimension segments
+      const bounds = [0, ...positions, d.l];
+      for (let i=0;i<bounds.length-1;i++){
+        const x1 = xAt(bounds[i]), x2 = xAt(bounds[i+1]);
+        svg += dimLine(x1, x2, barY - 20, '#6E6659');
+        svg += label((x1+x2)/2, barY - 24, 'e', '#6E6659', 11);
+      }
+      legendHTML = `<span><span class="dot"></span>Element (n=${d.n})</span><span>Abstand e zwischen und an den Enden</span>`;
+    }
+    if (d.type === 'B'){
+      const positions = [];
+      for (let i=0;i<d.n;i++){ positions.push(d.a + i*d.e); }
+      // margins
+      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#B08968');
+      svg += label(xAt(d.a)/2 + xAt(0)/2, barY - 24, 'a', '#B08968', 11);
+      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#B08968');
+      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      // e segments
+      for (let i=0;i<positions.length-1;i++){
+        const x1 = xAt(positions[i]), x2 = xAt(positions[i+1]);
+        svg += dimLine(x1, x2, barY - 20, '#6E6659');
+        svg += label((x1+x2)/2, barY - 24, 'e', '#6E6659', 11);
+      }
+      legendHTML = `<span><span class="dot"></span>Element (n=${d.n})</span><span style="color:#B08968">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
+    }
+    if (d.type === 'C'){
+      const mRight = (d.marginRight != null) ? d.marginRight : d.marginEach;
+      // margins
+      svg += dimLine(xAt(0), xAt(d.marginEach), barY - 20, '#B08968');
+      svg += label(xAt(d.marginEach)/2, barY - 24, 'a', '#B08968', 11);
+      svg += dimLine(xAt(d.l - mRight), xAt(d.l), barY - 20, '#B08968');
+      svg += label((xAt(d.l - mRight)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      // block bracket labels (below number lane)
+      d.blockRanges.forEach((br, bi) => {
+        const xMid = (xAt(br.start) + xAt(br.end)) / 2;
+        svg += label(xMid, barY + barH + 30, `${br.count}× R${fmtLen(br.raster)}`, '#6E6659', 10);
+      });
+      // gaps
+      d.blockRanges.forEach((br, bi) => {
+        if (bi < d.blockRanges.length - 1){
+          const gapStart = br.end;
+          const gapEnd = d.blockRanges[bi+1].start;
+          svg += dimLine(xAt(gapStart), xAt(gapEnd), barY - 20, '#221E19');
+          svg += label((xAt(gapStart)+xAt(gapEnd))/2, barY - 24, 'Lücke', '#221E19', 9);
+        }
+      });
+      legendHTML = `<span><span class="dot"></span>Löcher (je Reihe eigenes Raster)</span><span style="color:#B08968">Randabstand a / b (auto)</span><span>Lücke zwischen Reihen</span>`;
+    }
+    if (d.type === 'D'){
+      // margins a (left) and b (right) in brown
+      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#B08968');
+      svg += label(xAt(d.a)/2, barY - 24, 'a', '#B08968', 11);
+      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#B08968');
+      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      // obstacles + e between them
+      let cursor = d.a;
+      d.bList.forEach((bw, i) => {
+        const x1 = xAt(cursor), x2 = xAt(cursor + bw);
+        svg += `<rect x="${x1}" y="${barY}" width="${x2-x1}" height="${barH}" fill="#221E19" opacity="0.85"/>`;
+        svg += label((x1+x2)/2, barY + barH/2 + 4, 'b'+(i+1), '#FFF7EE', 10);
+        cursor += bw;
+        if (i < d.bList.length - 1){
+          const g1 = xAt(cursor), g2 = xAt(cursor + d.e);
+          svg += dimLine(g1, g2, barY - 20, '#6E6659');
+          svg += label((g1+g2)/2, barY - 24, 'e', '#6E6659', 11);
+          cursor += d.e;
+        }
+      });
+      legendHTML = `<span><span class="dot" style="background:#221E19"></span>Hindernis b₁…bₙ (feste Breite)</span><span style="color:#B08968">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
+    }
+    // Unified numbered, tappable points from d.marks (same order as table)
+    const cy = barY + barH/2;
+    const showNums = d.marks.length <= 8;
+    d.marks.forEach((pos, i) => {
+      const x = xAt(pos);
+      svg += `<circle class="pt" data-i="${i}" cx="${x}" cy="${cy}" r="4.5" fill="#F25C05" stroke="#fff" stroke-width="1"/>`;
+      if (showNums){
+        svg += `<text class="pt-num" data-i="${i}" x="${x}" y="${barY + barH + 13}" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E6659" text-anchor="middle">${i+1}</text>`;
+      }
+    });
+    // overall length dimension
+    svg += dimLine(xAt(0), xAt(d.l), H - 20, '#221E19');
+    svg += label(W/2, H - 8, `l = ${fmtLen(d.l)}`, '#221E19', 12);
+    els.svgHolder.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
+    els.legend.innerHTML = legendHTML;
+  }
+  renderBlocks();
+  renderBList();
+  updateRasterUI();
+  setMode('A');
+})();
+</script>
+</body>
+</html>
