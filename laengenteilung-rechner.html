@@ -465,7 +465,7 @@
   <div class="tabs">
     <button class="tab active" data-mode="A">Gleichmäßig<br>teilen</button>
     <button class="tab" data-mode="B">Mit festem<br>Randabstand</button>
-    <button class="tab" data-mode="D">Um Hindernisse<br>verteilen</button>
+    <button class="tab" data-mode="D">Abstände um<br>Aussparungen</button>
     <button class="tab" data-mode="C">Bohrreihen<br>im Raster</button>
   </div>
   <div class="card" style="padding:16px 20px; margin-bottom:16px;">
@@ -482,7 +482,7 @@
     <h2 id="mode-title">Eingaben</h2>
     <div class="field">
       <label for="l">Gesamtlänge l (<span class="unit-lbl">mm</span>)</label>
-      <input type="number" id="l" inputmode="decimal" value="600" min="0" step="1" />
+      <input type="number" id="l" inputmode="decimal" value="900" min="0" step="1" />
     </div>
     <!-- Mode A -->
     <div id="fields-A">
@@ -566,9 +566,9 @@
         </div>
       </div>
       <div class="field">
-        <label>Hindernisse / Unterbrechungen (mm)</label>
+        <label>Aussparungen (mm)</label>
         <div class="b-list" id="b-list"></div>
-        <button class="add-btn" id="add-b" type="button">+ Hindernis hinzufügen</button>
+        <button class="add-btn" id="add-b" type="button">+ Aussparung hinzufügen</button>
         <div class="hint">Feste Breiten, um die herum gleichmäßig verteilt wird. Ohne fix-Häkchen sind die Randabstände = e (gleichmäßig auch an den Enden). Mit fix bleibt der Wert fest und der Rest verteilt sich neu.</div>
       </div>
     </div>
@@ -697,7 +697,7 @@
       A: 'Eingaben — gleich verteilt',
       B: 'Eingaben — mit Randabstand',
       C: 'Eingaben — Bohrreihen mit Lücken',
-      D: 'Eingaben — um Hindernisse verteilen'
+      D: 'Eingaben — Abstände um Aussparungen'
     }[mode];
     // In mode C each row carries its own raster, so the global raster toggle is irrelevant.
     const rasterCard = els.raster32.closest('.card');
@@ -1050,9 +1050,9 @@
       const bdFixed = els.fixBd.checked;
       const adIn = Math.max(0, toMM(parseFloat(els.a_d.value) || 0));
       const bdIn = Math.max(0, toMM(parseFloat(els.b_d.value) || 0));
-      if (nB < 2) err = 'Mindestens 2 Hindernisse angeben.';
-      else if (state.bList.some(b => b < 0)) err = 'Hindernisbreiten dürfen nicht negativ sein.';
-      else if (l - sumB <= 0) err = 'Hindernisse sind zusammen breiter als die Gesamtlänge.';
+      if (nB < 2) err = 'Mindestens 2 Aussparungen angeben.';
+      else if (state.bList.some(b => b < 0)) err = 'Aussparungsbreiten dürfen nicht negativ sein.';
+      else if (l - sumB <= 0) err = 'Aussparungen sind zusammen breiter als die Gesamtlänge.';
       else {
         let aD, bD;
         if (adFixed && bdFixed){
@@ -1194,8 +1194,8 @@
       const adF = els.fixAd.checked, bdF = els.fixBd.checked;
       if (adF && bdF){
         html = `
-          <div class="formula-label">a und b fix – e nur zwischen den Hindernissen</div>
-          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse − a − b) / (Anzahl − 1)</div>
+          <div class="formula-label">a und b fix – e nur zwischen den Aussparungen</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣAussparungen − a − b) / (Anzahl − 1)</div>
           <div class="formula-line"><span class="var">e</span> = (${F(l)} − ${F(sumB)} − ${F(d.a)} − ${F(d.b)}) / ${nB - 1} = <span class="var">${F(d.e)}</span></div>
         `;
       } else if (adF || bdF){
@@ -1203,13 +1203,13 @@
         const fixVal = adF ? d.a : d.b;
         html = `
           <div class="formula-label">${fixName} fix – der andere Rand wird = e</div>
-          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse − ${fixName}) / Anzahl</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣAussparungen − ${fixName}) / Anzahl</div>
           <div class="formula-line"><span class="var">e</span> = (${F(l)} − ${F(sumB)} − ${F(fixVal)}) / ${nB} = <span class="var">${F(d.e)}</span></div>
         `;
       } else {
         html = `
           <div class="formula-label">Gleiche Lücken überall (a = b = e)</div>
-          <div class="formula-line"><span class="var">e</span> = (l − ΣHindernisse) / (Anzahl + 1)</div>
+          <div class="formula-line"><span class="var">e</span> = (l − ΣAussparungen) / (Anzahl + 1)</div>
           <div class="formula-line"><span class="var">e</span> = (${F(l)} − (${bParts})) / (${nB} + 1) = ${F(l - sumB)} / ${nB + 1} = <span class="var">${F(d.e)}</span></div>
         `;
       }
@@ -1347,7 +1347,7 @@
           cursor += d.e;
         }
       });
-      legendHTML = `<span><span class="dot" style="background:#1A1A1A"></span>Hindernis b₁…bₙ (feste Breite)</span><span style="color:#1A1A1A">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
+      legendHTML = `<span><span class="dot" style="background:#1A1A1A"></span>Aussparung b₁…bₙ (feste Breite)</span><span style="color:#1A1A1A">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
     }
     // Unified numbered, tappable points from d.marks (same order as table)
     const cy = barY + barH/2;
