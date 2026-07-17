@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Längenteilung – Schreiner Lab</title>
+<title>Längenteilung – Holzflow</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
   :root{
-    --bg: #FAF6EF;
+    /* Schreiner-Lab-Designsystem: eine Signalfarbe, ein Ink-Ton, ruhige Graustufen */
+    --bg: #F3F3F3;
     --surface: #FFFFFF;
-    --ink: #221E19;
-    --muted: #6E6659;
-    --line: #E1D7C6;
+    --ink: #1A1A1A;
+    --text: #333333;
+    --muted: #777777;
+    --line: #E4E4E4;
+    --fill: #F3F3F3;
     --accent: #F25C05;
-    --accent-soft: #FCE6D4;
-    --accent-dark: #C74B04;
+    --accent-soft: #FBEDE4;
+    --accent-dark: #D24E02;
+    --radius: 8px;
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --serif: 'Source Serif 4', Georgia, serif;
     --sans: 'Montserrat', sans-serif;
@@ -24,7 +28,7 @@
     margin: 0;
     padding: 0;
     background: var(--bg);
-    color: var(--ink);
+    color: var(--text);
     font-family: var(--serif);
     -webkit-font-smoothing: antialiased;
     max-width: 100%;
@@ -46,34 +50,32 @@
     font-family: var(--sans);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 1.4px;
     text-transform: uppercase;
-    color: var(--accent-dark);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .eyebrow::before {
-    content: "";
-    width: 16px;
-    height: 2px;
-    background: var(--accent);
-    display: inline-block;
+    color: var(--accent);
   }
   h1 {
     font-family: var(--sans);
-    font-weight: 800;
-    font-size: 28px;
-    letter-spacing: -0.01em;
-    margin: 10px 0 6px;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    margin: 5px 0 0;
     color: var(--ink);
   }
+  .srule {
+    width: 54px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 12px 0 18px;
+  }
   .sub {
-    font-size: 15px;
-    color: var(--muted);
-    line-height: 1.5;
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.6;
     margin: 0 0 22px;
-    max-width: 42ch;
+    max-width: 46ch;
   }
   /* Mode tabs */
   .tabs {
@@ -82,7 +84,7 @@
     gap: 6px;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 5px;
     margin-bottom: 20px;
   }
@@ -102,7 +104,7 @@
   }
   .tab.active {
     background: var(--ink);
-    color: #FFF7EE;
+    color: #FFFFFF;
   }
   .tab { -webkit-tap-highlight-color: transparent; }
   .unit-btn {
@@ -128,8 +130,8 @@
     width: 100%;
     height: 52px;
     border: 1.5px solid var(--line);
-    border-radius: 10px;
-    background: #FFFDF9;
+    border-radius: var(--radius);
+    background: #FAFAFA;
     overflow: hidden;
     transition: border-color 0.15s ease;
   }
@@ -152,7 +154,7 @@
   .step-btn {
     flex: 0 0 48px;
     border: none;
-    background: #F7F1E7;
+    background: #F3F3F3;
     color: var(--ink);
     font-size: 22px;
     font-weight: 400;
@@ -172,11 +174,11 @@
   .formula-line {
     font-family: var(--mono);
     font-size: 14px;
-    background: #FBF7F0;
-    border-left: 3px solid var(--accent);
+    background: var(--fill);
+    border-left: 4px solid var(--accent);
     padding: 9px 12px;
     margin: 8px 0;
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
     overflow-x: auto;
     white-space: nowrap;
   }
@@ -193,7 +195,7 @@
   .card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--radius);
     padding: 20px;
     margin-bottom: 18px;
     box-sizing: border-box;
@@ -286,7 +288,7 @@
     font-size: 13px;
     font-weight: 600;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: var(--radius);
     border: 1.5px dashed var(--line);
     background: transparent;
     color: var(--muted);
@@ -302,9 +304,9 @@
   /* Block list (mode C) */
   .block-list { display: flex; flex-direction: column; gap: 0; }
   .block-item {
-    background: #FBF7F0;
+    background: var(--fill);
     border: 1.5px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--radius);
     padding: 14px;
   }
   .block-item .block-head {
@@ -338,9 +340,9 @@
   .block-remove, .b-remove {
     width: 30px; height: 30px;
     flex-shrink: 0;
-    border-radius: 8px;
+    border-radius: var(--radius);
     border: 1.5px solid var(--line);
-    background: #FFFDF9;
+    background: #FAFAFA;
     color: var(--muted);
     font-size: 15px; line-height: 1;
     cursor: pointer;
@@ -355,13 +357,13 @@
   /* Result card */
   .result {
     background: var(--ink);
-    border-radius: 14px;
+    border-radius: var(--radius);
     padding: 22px 20px;
-    color: #FFF7EE;
+    color: #FFFFFF;
     margin-bottom: 18px;
   }
   .result.error {
-    background: #3A2418;
+    background: #2B2B2B;
   }
   .result-top {
     display: flex;
@@ -375,7 +377,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #C9BFAF;
+    color: #C9C9C9;
     margin-bottom: 4px;
   }
   .result-block .v {
@@ -387,26 +389,26 @@
   }
   .result-block .v span.unit {
     font-size: 15px;
-    color: #FFF7EE;
+    color: #FFFFFF;
     font-weight: 500;
     margin-left: 3px;
   }
   .result-block.secondary .v {
-    color: #FFF7EE;
+    color: #FFFFFF;
     font-size: 22px;
   }
   .error-msg {
     font-family: var(--sans);
     font-size: 13px;
     font-weight: 500;
-    color: #F2C6AE;
+    color: var(--accent-soft);
     line-height: 1.5;
   }
   /* Diagram */
   .diagram-card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--radius);
     padding: 18px 16px 14px;
   }
   .diagram-card h2 {
@@ -447,12 +449,13 @@
 </head>
 <body>
 <div class="sheet">
-  <div class="eyebrow">Schreiner Lab · Werkstatt-Rechner</div>
+  <div class="eyebrow">Holzflow · Werkstatt-Rechner</div>
   <h1>Längenteilung</h1>
+  <div class="srule"></div>
   <p class="sub">Elemente gleichmäßig über eine Länge verteilen – für Bohrungen, Griffe, Sprossen oder Latten.</p>
   <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
     <span style="font-family:var(--sans); font-size:12px; font-weight:600; color:var(--muted);">Einheit</span>
-    <div id="unit-switch" style="display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:3px; gap:2px;">
+    <div id="unit-switch" style="display:inline-flex; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:3px; gap:2px;">
       <button class="unit-btn active" data-unit="mm" type="button">mm</button>
       <button class="unit-btn" data-unit="cm" type="button">cm</button>
       <button class="unit-btn" data-unit="m" type="button">m</button>
@@ -582,9 +585,9 @@
       </div>
     </div>
     <div class="error-msg" id="error-msg" style="display:none"></div>
-    <div id="leftover-row" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,247,238,0.15);">
-      <div class="k" style="font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#C9BFAF; margin-bottom:4px;">Hinweis zum Raster</div>
-      <div style="font-family:var(--mono); font-size:16px; color:#FFF7EE;" id="leftover-value">–</div>
+    <div id="leftover-row" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.15);">
+      <div class="k" style="font-family:var(--sans); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#C9C9C9; margin-bottom:4px;">Hinweis zum Raster</div>
+      <div style="font-family:var(--mono); font-size:16px; color:#FFFFFF;" id="leftover-value">–</div>
     </div>
   </div>
   <div class="diagram-card">
@@ -610,7 +613,7 @@
     <h2>Formel &amp; Rechenweg</h2>
     <div id="formula-body" style="font-family:var(--serif); font-size:15px; color:var(--ink); line-height:1.65;"></div>
   </div>
-  <footer>SCHREINER LAB · Werkstatt-Rechner</footer>
+  <footer>HOLZFLOW · Werkstatt-Rechner</footer>
 </div>
 <script>
 (function(){
@@ -1221,13 +1224,13 @@
       const i = +dot.dataset.i;
       const on = i === highlightIdx;
       dot.setAttribute('r', on ? 7 : 4.5);
-      dot.setAttribute('fill', on ? '#C74B04' : '#F25C05');
+      dot.setAttribute('fill', on ? '#D24E02' : '#F25C05');
     });
     nums.forEach(t => {
       const i = +t.dataset.i;
       const on = i === highlightIdx;
       t.setAttribute('font-weight', on ? '700' : '400');
-      t.setAttribute('fill', on ? '#C74B04' : '#6E6659');
+      t.setAttribute('fill', on ? '#D24E02' : '#777777');
     });
     rows.forEach(r => {
       r.style.background = (+r.dataset.i === highlightIdx) ? 'var(--accent-soft)' : '';
@@ -1272,7 +1275,7 @@
     let svg = '';
     let legendHTML = '';
     // base bar
-    svg += `<rect x="${padX}" y="${barY}" width="${usableW}" height="${barH}" rx="3" fill="#FCE6D4" stroke="#E1D7C6" stroke-width="1.2"/>`;
+    svg += `<rect x="${padX}" y="${barY}" width="${usableW}" height="${barH}" rx="3" fill="#FBEDE4" stroke="#E4E4E4" stroke-width="1.2"/>`;
     if (d.type === 'A'){
       const positions = [];
       for (let i=1;i<=d.n;i++){ positions.push(i * d.e); }
@@ -1280,8 +1283,8 @@
       const bounds = [0, ...positions, d.l];
       for (let i=0;i<bounds.length-1;i++){
         const x1 = xAt(bounds[i]), x2 = xAt(bounds[i+1]);
-        svg += dimLine(x1, x2, barY - 20, '#6E6659');
-        svg += label((x1+x2)/2, barY - 24, 'e', '#6E6659', 11);
+        svg += dimLine(x1, x2, barY - 20, '#777777');
+        svg += label((x1+x2)/2, barY - 24, 'e', '#777777', 11);
       }
       legendHTML = `<span><span class="dot"></span>Element (n=${d.n})</span><span>Abstand e zwischen und an den Enden</span>`;
     }
@@ -1289,62 +1292,62 @@
       const positions = [];
       for (let i=0;i<d.n;i++){ positions.push(d.a + i*d.e); }
       // margins
-      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#B08968');
-      svg += label(xAt(d.a)/2 + xAt(0)/2, barY - 24, 'a', '#B08968', 11);
-      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#B08968');
-      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#1A1A1A');
+      svg += label(xAt(d.a)/2 + xAt(0)/2, barY - 24, 'a', '#1A1A1A', 11);
+      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#1A1A1A');
+      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#1A1A1A', 11);
       // e segments
       for (let i=0;i<positions.length-1;i++){
         const x1 = xAt(positions[i]), x2 = xAt(positions[i+1]);
-        svg += dimLine(x1, x2, barY - 20, '#6E6659');
-        svg += label((x1+x2)/2, barY - 24, 'e', '#6E6659', 11);
+        svg += dimLine(x1, x2, barY - 20, '#777777');
+        svg += label((x1+x2)/2, barY - 24, 'e', '#777777', 11);
       }
-      legendHTML = `<span><span class="dot"></span>Element (n=${d.n})</span><span style="color:#B08968">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
+      legendHTML = `<span><span class="dot"></span>Element (n=${d.n})</span><span style="color:#1A1A1A">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
     }
     if (d.type === 'C'){
       const mRight = (d.marginRight != null) ? d.marginRight : d.marginEach;
       // margins
-      svg += dimLine(xAt(0), xAt(d.marginEach), barY - 20, '#B08968');
-      svg += label(xAt(d.marginEach)/2, barY - 24, 'a', '#B08968', 11);
-      svg += dimLine(xAt(d.l - mRight), xAt(d.l), barY - 20, '#B08968');
-      svg += label((xAt(d.l - mRight)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      svg += dimLine(xAt(0), xAt(d.marginEach), barY - 20, '#1A1A1A');
+      svg += label(xAt(d.marginEach)/2, barY - 24, 'a', '#1A1A1A', 11);
+      svg += dimLine(xAt(d.l - mRight), xAt(d.l), barY - 20, '#1A1A1A');
+      svg += label((xAt(d.l - mRight)+xAt(d.l))/2, barY - 24, 'b', '#1A1A1A', 11);
       // block bracket labels (below number lane)
       d.blockRanges.forEach((br, bi) => {
         const xMid = (xAt(br.start) + xAt(br.end)) / 2;
-        svg += label(xMid, barY + barH + 30, `${br.count}× R${fmtLen(br.raster)}`, '#6E6659', 10);
+        svg += label(xMid, barY + barH + 30, `${br.count}× R${fmtLen(br.raster)}`, '#777777', 10);
       });
       // gaps
       d.blockRanges.forEach((br, bi) => {
         if (bi < d.blockRanges.length - 1){
           const gapStart = br.end;
           const gapEnd = d.blockRanges[bi+1].start;
-          svg += dimLine(xAt(gapStart), xAt(gapEnd), barY - 20, '#221E19');
-          svg += label((xAt(gapStart)+xAt(gapEnd))/2, barY - 24, 'Lücke', '#221E19', 9);
+          svg += dimLine(xAt(gapStart), xAt(gapEnd), barY - 20, '#1A1A1A');
+          svg += label((xAt(gapStart)+xAt(gapEnd))/2, barY - 24, 'Lücke', '#1A1A1A', 9);
         }
       });
-      legendHTML = `<span><span class="dot"></span>Löcher (je Reihe eigenes Raster)</span><span style="color:#B08968">Randabstand a / b (auto)</span><span>Lücke zwischen Reihen</span>`;
+      legendHTML = `<span><span class="dot"></span>Löcher (je Reihe eigenes Raster)</span><span style="color:#1A1A1A">Randabstand a / b (auto)</span><span>Lücke zwischen Reihen</span>`;
     }
     if (d.type === 'D'){
       // margins a (left) and b (right) in brown
-      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#B08968');
-      svg += label(xAt(d.a)/2, barY - 24, 'a', '#B08968', 11);
-      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#B08968');
-      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#B08968', 11);
+      svg += dimLine(xAt(0), xAt(d.a), barY - 20, '#1A1A1A');
+      svg += label(xAt(d.a)/2, barY - 24, 'a', '#1A1A1A', 11);
+      svg += dimLine(xAt(d.l - d.b), xAt(d.l), barY - 20, '#1A1A1A');
+      svg += label((xAt(d.l - d.b)+xAt(d.l))/2, barY - 24, 'b', '#1A1A1A', 11);
       // obstacles + e between them
       let cursor = d.a;
       d.bList.forEach((bw, i) => {
         const x1 = xAt(cursor), x2 = xAt(cursor + bw);
-        svg += `<rect x="${x1}" y="${barY}" width="${x2-x1}" height="${barH}" fill="#221E19" opacity="0.85"/>`;
-        svg += label((x1+x2)/2, barY + barH/2 + 4, 'b'+(i+1), '#FFF7EE', 10);
+        svg += `<rect x="${x1}" y="${barY}" width="${x2-x1}" height="${barH}" fill="#1A1A1A" opacity="0.85"/>`;
+        svg += label((x1+x2)/2, barY + barH/2 + 4, 'b'+(i+1), '#FFFFFF', 10);
         cursor += bw;
         if (i < d.bList.length - 1){
           const g1 = xAt(cursor), g2 = xAt(cursor + d.e);
-          svg += dimLine(g1, g2, barY - 20, '#6E6659');
-          svg += label((g1+g2)/2, barY - 24, 'e', '#6E6659', 11);
+          svg += dimLine(g1, g2, barY - 20, '#777777');
+          svg += label((g1+g2)/2, barY - 24, 'e', '#777777', 11);
           cursor += d.e;
         }
       });
-      legendHTML = `<span><span class="dot" style="background:#221E19"></span>Hindernis b₁…bₙ (feste Breite)</span><span style="color:#B08968">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
+      legendHTML = `<span><span class="dot" style="background:#1A1A1A"></span>Hindernis b₁…bₙ (feste Breite)</span><span style="color:#1A1A1A">Randabstand a / b</span><span>Abstand e dazwischen</span>`;
     }
     // Unified numbered, tappable points from d.marks (same order as table)
     const cy = barY + barH/2;
@@ -1353,12 +1356,12 @@
       const x = xAt(pos);
       svg += `<circle class="pt" data-i="${i}" cx="${x}" cy="${cy}" r="4.5" fill="#F25C05" stroke="#fff" stroke-width="1"/>`;
       if (showNums){
-        svg += `<text class="pt-num" data-i="${i}" x="${x}" y="${barY + barH + 13}" font-family="JetBrains Mono, monospace" font-size="9" fill="#6E6659" text-anchor="middle">${i+1}</text>`;
+        svg += `<text class="pt-num" data-i="${i}" x="${x}" y="${barY + barH + 13}" font-family="JetBrains Mono, monospace" font-size="9" fill="#777777" text-anchor="middle">${i+1}</text>`;
       }
     });
     // overall length dimension
-    svg += dimLine(xAt(0), xAt(d.l), H - 20, '#221E19');
-    svg += label(W/2, H - 8, `l = ${fmtLen(d.l)}`, '#221E19', 12);
+    svg += dimLine(xAt(0), xAt(d.l), H - 20, '#1A1A1A');
+    svg += label(W/2, H - 8, `l = ${fmtLen(d.l)}`, '#1A1A1A', 12);
     els.svgHolder.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
     els.legend.innerHTML = legendHTML;
   }
